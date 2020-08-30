@@ -53,10 +53,10 @@ public class Server {
         }
 	}
 	
-	public void broadcastFile(int fileSize, byte[] byteArray, ClientHandler excludeUser) {
+	public void broadcastFile(String filename, int fileSize, byte[] byteArray, ClientHandler excludeUser) {
         for (ClientHandler client : clientHandlers) {
             if (client != excludeUser) {
-                client.sendFile(fileSize, byteArray);
+                client.sendFile(filename, fileSize, byteArray);
             }
         }
 	}

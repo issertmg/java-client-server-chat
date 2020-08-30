@@ -34,11 +34,12 @@ public class ClientHandler extends Thread{
 					server.broadcastString(clientMessage, this);
 				}
 				else if (messageType.equals("FILE")) {
-					server.broadcastString("file sent", null);
+					//server.broadcastString("file sent", null);
+					String filename = disReader.readUTF();
 					int fileSize = disReader.readInt();
 					byte[] byteArray = new byte[fileSize];
 					disReader.read(byteArray, 0, fileSize);
-					server.broadcastFile(fileSize, byteArray, this);
+					server.broadcastFile(filename, fileSize, byteArray, this);
 				} 
 
 	
@@ -73,9 +74,10 @@ public class ClientHandler extends Thread{
 		}
 	}
 
-	public void sendFile (int fileSize, byte[] byteArray) {
+	public void sendFile (String filename, int fileSize, byte[] byteArray) {
 		try {
 			dosWriter.writeUTF("FILE");
+			dosWriter.writeUTF(filename);
 			dosWriter.writeInt(fileSize);
 			dosWriter.write(byteArray);
 		} catch (Exception e) {

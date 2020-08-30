@@ -3,8 +3,12 @@ import java.io.*;
 import java.net.*; 
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class Client implements ActionListener {
+	ArrayList<byte[]> byteArrayList;
+	ArrayList<String> filenameList;
+
 	DataInputStream disReader;
 	DataOutputStream dosWriter;
 
@@ -21,7 +25,8 @@ public class Client implements ActionListener {
             Socket clientEndpoint = new Socket(sServerAddress, nPort);
 			System.out.println("Client: Connecting to server at " + clientEndpoint.getRemoteSocketAddress());
 			System.out.println("Client: Connected to server at " + clientEndpoint.getRemoteSocketAddress()); 
-      
+			byteArrayList = new ArrayList<byte[]>();
+			filenameList = new ArrayList<String>();
             // obtaining input and out streams 
             disReader = new DataInputStream(clientEndpoint.getInputStream());
             dosWriter = new DataOutputStream(clientEndpoint.getOutputStream());
@@ -40,17 +45,15 @@ public class Client implements ActionListener {
 					displayReceivedMessage(message);
 				}
 				else if (messageType.equals("FILE")) {
+					String filename = disReader.readUTF();
 					int fileSize = disReader.readInt();
 					byte[] byteArray = new byte[fileSize];
-
-					FileOutputStream fos = new FileOutputStream("Received.docx");
 					disReader.read(byteArray, 0, fileSize);
-
-					fos.write(byteArray);
-					fos.close();
+					byteArrayList.add(byteArray);
+					filenameList.add(filename);
+					displayReceivedFile(filename);
+					System.out.println("filename: "+ filename);
 				}
-					
-				
                   
                 // If client sends exit,close this connection  
                 // and then break from the while loop 
@@ -124,7 +127,7 @@ public class Client implements ActionListener {
 			}
 			messageTa.setText("");
 		}
-		if (ae.getActionCommand() == "upload") {
+		else if (ae.getActionCommand() == "upload") {
 			try {
 				JFileChooser jfc = new JFileChooser();
 				int r = jfc.showSaveDialog(null);
@@ -137,10 +140,14 @@ public class Client implements ActionListener {
 					fis.read(byteArray);
 					
 					int fileSize = Math.toIntExact(file.length());
+					String filename = file.getName();
 
-					//System.out.println("Server: Sending File \"Download.txt\" (" + fileSize + " bytes)");
+					byteArrayList.add(byteArray);
+					filenameList.add(filename);
+					displaySentFile(filename);
 
 					dosWriter.writeUTF("FILE");
+					dosWriter.writeUTF(filename);
 					dosWriter.writeInt(fileSize);
 					dosWriter.write(byteArray);
 					fis.close();
@@ -148,9 +155,78 @@ public class Client implements ActionListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+		}
+		else {
+			int fileNumber = Integer.parseInt(ae.getActionCommand());
+			try {
+				JFileChooser jfc = new JFileChooser();
+				File newfile = new File(filenameList.get(fileNumber-1));
+				jfc.setSelectedFile(newfile);
+
+				int r = jfc.showSaveDialog(null);
+
+				if (r == JFileChooser.APPROVE_OPTION) {
+					File file = jfc.getSelectedFile();
+					
+					FileOutputStream fos = new FileOutputStream(file);
+					fos.write(byteArrayList.get(fileNumber-1));
+					fos.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
+	}
+
+	public void displaySentFile(String filename) {
+		JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		//messagePanel.setPreferredSize(new Dimension (200, 1));
+		messagePanel.setOpaque(false);
+		//messagePanel.setMinimumSize(new Dimension(400, 1));
+		JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		container.setBackground(new Color(149,215,73));
+		//container.setPreferredSize(new Dimension(200, 1));
+		JLabel fileLabel = new JLabel(filename);
+		JButton downloadBtn = new JButton("download");
+		downloadBtn.setActionCommand(String.valueOf(byteArrayList.size()));
+		downloadBtn.addActionListener((ActionListener) this);
+
+		container.add(fileLabel);
+		container.add(downloadBtn);
+		messagePanel.add(container);
+		centerPanel.add(messagePanel);
+		updateGUI();
+		messagePanel.setPreferredSize(new Dimension (350, messagePanel.getPreferredSize().height));
+		updateGUI();
+		container.setPreferredSize(new Dimension (175, container.getPreferredSize().height));
+		centerPanelScrollBar.setValue(centerPanelScrollBar.getMaximum());
+		updateGUI();
+	}
+
+	public void displayReceivedFile(String filename) {
+		JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		//messagePanel.setPreferredSize(new Dimension (200, 1));
+		messagePanel.setOpaque(false);
+		//messagePanel.setMinimumSize(new Dimension(400, 1));
+		JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		container.setBackground(new Color(210,210,210));
+		//container.setPreferredSize(new Dimension(200, 1));
+		JLabel fileLabel = new JLabel(filename);
+		JButton downloadBtn = new JButton("download");
+		downloadBtn.setActionCommand(String.valueOf(byteArrayList.size()));
+		downloadBtn.addActionListener((ActionListener) this);
+
+		container.add(fileLabel);
+		container.add(downloadBtn);
+		messagePanel.add(container);
+		centerPanel.add(messagePanel);
+		updateGUI();
+		messagePanel.setPreferredSize(new Dimension (350, messagePanel.getPreferredSize().height));
+		updateGUI();
+		container.setPreferredSize(new Dimension (175, container.getPreferredSize().height));
+		centerPanelScrollBar.setValue(centerPanelScrollBar.getMaximum());
+		updateGUI();
 	}
 
 	public void displaySentMessage (String msg) {
