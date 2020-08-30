@@ -38,18 +38,27 @@ public class Server {
 			}
 		}
 	}
-	public static void main (String[] args) {
-		int nPort = Integer.parseInt(args[0]);
-		Server server = new Server(nPort);
-		server.execute();
-	}
+	// public static void main (String[] args) {
+	// 	int nPort = Integer.parseInt(args[0]);
+	// 	Server server = new Server(nPort);
+	// 	server.execute();
+	// }
 
 	//broadcast message to users
-	void broadcast(String message, ClientHandler excludeUser) {
+	public void broadcastString(String message, ClientHandler excludeUser) {
         for (ClientHandler client : clientHandlers) {
             if (client != excludeUser) {
                 client.sendMessage(message);
             }
         }
-    }
+	}
+	
+	public void broadcastFile(int fileSize, byte[] byteArray, ClientHandler excludeUser) {
+        for (ClientHandler client : clientHandlers) {
+            if (client != excludeUser) {
+                client.sendFile(fileSize, byteArray);
+            }
+        }
+	}
+	
 }

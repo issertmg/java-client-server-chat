@@ -1,0 +1,1 @@
+message.setFont(new Font("Monospaced", Font.PLAIN, 10));
