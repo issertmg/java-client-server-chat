@@ -183,6 +183,7 @@ public class Client implements ActionListener {
 		JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		//messagePanel.setPreferredSize(new Dimension (200, 1));
 		messagePanel.setOpaque(false);
+		//messagePanel.setBackground(new Color(210,215,73));
 		//messagePanel.setMinimumSize(new Dimension(400, 1));
 		JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		container.setBackground(new Color(149,215,73));
@@ -196,10 +197,11 @@ public class Client implements ActionListener {
 		container.add(downloadBtn);
 		messagePanel.add(container);
 		centerPanel.add(messagePanel);
+		messagePanel.setPreferredSize(new Dimension (350, messagePanel.getPreferredSize().height));
 		updateGUI();
 		messagePanel.setPreferredSize(new Dimension (350, messagePanel.getPreferredSize().height));
 		updateGUI();
-		container.setPreferredSize(new Dimension (175, container.getPreferredSize().height));
+		//container.setPreferredSize(new Dimension (175, container.getPreferredSize().height));
 		centerPanelScrollBar.setValue(centerPanelScrollBar.getMaximum());
 		updateGUI();
 	}
@@ -221,10 +223,11 @@ public class Client implements ActionListener {
 		container.add(downloadBtn);
 		messagePanel.add(container);
 		centerPanel.add(messagePanel);
+		messagePanel.setPreferredSize(new Dimension (350, messagePanel.getPreferredSize().height));
 		updateGUI();
 		messagePanel.setPreferredSize(new Dimension (350, messagePanel.getPreferredSize().height));
 		updateGUI();
-		container.setPreferredSize(new Dimension (175, container.getPreferredSize().height));
+		//container.setPreferredSize(new Dimension (175, container.getPreferredSize().height));
 		centerPanelScrollBar.setValue(centerPanelScrollBar.getMaximum());
 		updateGUI();
 	}
