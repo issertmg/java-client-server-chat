@@ -5,10 +5,11 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
-public class Client implements ActionListener {
+public class Client extends WindowAdapter implements ActionListener {
 	ArrayList<byte[]> byteArrayList;
 	ArrayList<String> filenameList;
-
+	
+	Socket clientEndpoint;
 	DataInputStream disReader;
 	DataOutputStream dosWriter;
 
@@ -22,24 +23,29 @@ public class Client implements ActionListener {
 	public Client(String sServerAddress, int nPort) {
 		try
         { 
-            Socket clientEndpoint = new Socket(sServerAddress, nPort);
+            clientEndpoint = new Socket(sServerAddress, nPort);
 			System.out.println("Client: Connecting to server at " + clientEndpoint.getRemoteSocketAddress());
 			System.out.println("Client: Connected to server at " + clientEndpoint.getRemoteSocketAddress()); 
+
 			byteArrayList = new ArrayList<byte[]>();
 			filenameList = new ArrayList<String>();
             // obtaining input and out streams 
             disReader = new DataInputStream(clientEndpoint.getInputStream());
             dosWriter = new DataOutputStream(clientEndpoint.getOutputStream());
-	  
+			
 			init();
             // the following loop performs the exchange of 
             // information between client and client handler 
             while (true)  
             { 
-					// String message = disReader.readUTF();
-					// displayReceivedMessage(message);
+				String messageType;
 
-				String messageType = disReader.readUTF();
+				try {
+					messageType = disReader.readUTF();
+				} catch (Exception e) {
+					break;
+				}
+				
 				if (messageType.equals("STRING")) {
 					String message = disReader.readUTF();
 					displayReceivedMessage(message);
@@ -53,30 +59,16 @@ public class Client implements ActionListener {
 					filenameList.add(filename);
 					displayReceivedFile(filename);
 					System.out.println("filename: "+ filename);
-				}
-                  
-                // If client sends exit,close this connection  
-                // and then break from the while loop 
-                if(messageType.equals("Exit")) 
-                { 
-                    System.out.println("Closing this connection : " + clientEndpoint); 
-                    clientEndpoint.close(); 
-                    System.out.println("Connection closed"); 
-                    break; 
-                } 
-                  
+				}        
             } 
               
-            // closing resources 
-            disReader.close(); 
-            dosWriter.close(); 
         }catch(Exception e){ 
             e.printStackTrace(); 
         } 
 	}
 
 	public void init () {
-		frame = new JFrame();
+		frame = new JFrame("De La Salle Usap (DLSU) client");
 		frame.setResizable(false);
 		sendBtn = new JButton("send");
 		sendBtn.setSize(150, 80);
@@ -113,6 +105,7 @@ public class Client implements ActionListener {
 	public void addActionListeners() {
 		sendBtn.addActionListener((ActionListener) this);
 		uploadBtn.addActionListener((ActionListener) this);
+		frame.addWindowListener(this);
 	}
 
 	public void actionPerformed (ActionEvent ae) {
@@ -283,6 +276,16 @@ public class Client implements ActionListener {
 		container.setPreferredSize(new Dimension (175, container.getPreferredSize().height));
 		centerPanelScrollBar.setValue(centerPanelScrollBar.getMaximum());
 		updateGUI();
+	}
+
+	public void windowClosing(WindowEvent evt) {
+		try {
+			System.out.println("Closing this connection : " + clientEndpoint); 
+            clientEndpoint.close(); 
+            System.out.println("Connection closed"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	// public static void main (String[] args) {

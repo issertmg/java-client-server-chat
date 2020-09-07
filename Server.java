@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.event.*;
 import java.net.*; 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Server {
 	int nPort;
@@ -23,7 +25,7 @@ public class Server {
 	}
 
 	public void init () {
-		frame = new JFrame();
+		frame = new JFrame("De La Salle Usap (DLSU) Server");
 		frame.setResizable(false);
 		saveBtn = new JButton("save log");
 		//sendBtn.setSize(150, 80);
@@ -34,13 +36,11 @@ public class Server {
 		model = new DefaultTableModel(column, 0);
 		table = new JTable(model);
 
-		// Object[] row = {"data1", "data2" , "data3", "data4"};
-		// model.addRow( row );
 		JScrollPane scrollpane = new JScrollPane(table);
 		scrollBar = scrollpane.getVerticalScrollBar();
 		frame.add(scrollpane, BorderLayout.CENTER);
 		
-		frame.setSize(400, 600);
+		frame.setSize(500, 600);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//addActionListeners();
@@ -61,7 +61,8 @@ public class Server {
 				
 				//socket object to receive incoming client requests
 				serverEndpoint = serverSocket.accept();
-				System.out.println("Server: New client connected: " + serverEndpoint.getRemoteSocketAddress());
+				String source = serverEndpoint.getRemoteSocketAddress().toString();
+				addToActivityLog(source, "", "Login");
 
 				ClientHandler t = new ClientHandler(serverEndpoint, this);
 				clientHandlers.add(t);
@@ -80,19 +81,43 @@ public class Server {
 
 	//broadcast message to users
 	public void broadcastString(String message, ClientHandler excludeUser) {
+		String source = excludeUser.serverEndpoint.getRemoteSocketAddress().toString();
+
         for (ClientHandler client : clientHandlers) {
             if (client != excludeUser) {
-                client.sendMessage(message);
-            }
-        }
+				client.sendMessage(message);
+				String destination = client.serverEndpoint.getRemoteSocketAddress().toString();
+				addToActivityLog(source, destination, "Sending message");
+				addToActivityLog(source, destination, "Receiving message");
+			}
+		}
 	}
 	
 	public void broadcastFile(String filename, int fileSize, byte[] byteArray, ClientHandler excludeUser) {
-        for (ClientHandler client : clientHandlers) {
+		String source = excludeUser.serverEndpoint.getRemoteSocketAddress().toString();
+		
+		for (ClientHandler client : clientHandlers) {
             if (client != excludeUser) {
-                client.sendFile(filename, fileSize, byteArray);
+				client.sendFile(filename, fileSize, byteArray);
+				String destination = client.serverEndpoint.getRemoteSocketAddress().toString();
+				addToActivityLog(source, destination, "Sending file");
+				addToActivityLog(source, destination, "Receiving file");
             }
         }
 	}
 	
+	public void removeClientHander(ClientHandler user) {
+		String source = user.serverEndpoint.getRemoteSocketAddress().toString();
+		clientHandlers.remove(user);
+		addToActivityLog(source, "", "Logout");
+	}
+
+	public void addToActivityLog(String source, String destination, String activity) {
+		LocalDateTime dateTime = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM-dd-yyyy HH:mm:ss");
+		String timestamp = dateTime.format(formatter);
+
+		Object[] row = { timestamp, source , destination, activity };
+		model.addRow(row);
+	}
 }

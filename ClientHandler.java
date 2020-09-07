@@ -26,9 +26,22 @@ public class ClientHandler extends Thread{
 		while (true) {
 			
 			try {
-				
 				//broadcast message of handled client to other clients
-				String messageType = disReader.readUTF();
+				
+				String messageType;
+
+				try {
+					messageType = disReader.readUTF();
+				} catch (Exception e) {
+					System.out.println("Server: Client " + this.serverEndpoint.getRemoteSocketAddress() + " sends exit...");
+					System.out.println("Closing this connection."); 
+					serverEndpoint.close();
+					System.out.println("Connection closed");
+					server.removeClientHander(this);
+					this.interrupt();
+					break;
+				}
+
 				if (messageType.equals("STRING")) {
 					String clientMessage = disReader.readUTF();
 					server.broadcastString(clientMessage, this);
@@ -42,25 +55,9 @@ public class ClientHandler extends Thread{
 					server.broadcastFile(filename, fileSize, byteArray, this);
 				} 
 
-	
-				if (messageType.equals("Exit")) {
-					System.out.println("Server: Client " + this.serverEndpoint.getRemoteSocketAddress() + " sends exit...");
-					System.out.println("Closing this connection."); 
-					serverEndpoint.close();
-					System.out.println("Connection closed"); 
-					break;
-				}
-
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
-
-		try {
-			disReader.close();
-			dosWriter.close();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
