@@ -8,8 +8,9 @@ import java.awt.event.*;
 import java.net.*; 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.json.simple.JSONObject;
 
-public class Server {
+public class Server extends WindowAdapter implements ActionListener {
 	int nPort;
 	Set<ClientHandler> clientHandlers;
 	JButton saveBtn;
@@ -17,10 +18,13 @@ public class Server {
 	JScrollBar scrollBar;
 	JFrame frame;
 	DefaultTableModel model;
+	ArrayList<JSONObject> jsonList;
+
 
 	public Server(int nPort) {
 		this.nPort = nPort;
 		clientHandlers = new HashSet<>();
+		jsonList = new ArrayList<JSONObject>();
 		init();	
 	}
 
@@ -39,11 +43,18 @@ public class Server {
 		JScrollPane scrollpane = new JScrollPane(table);
 		scrollBar = scrollpane.getVerticalScrollBar();
 		frame.add(scrollpane, BorderLayout.CENTER);
+
+		JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		northPanel.setBackground(new Color(71,105,153));
+		JLabel label = new JLabel("Test: dfdf");
+		label.setForeground(Color.WHITE);
+		northPanel.add(label);
+		frame.add(northPanel, BorderLayout.NORTH);
 		
-		frame.setSize(500, 600);
+		frame.setSize(800, 600);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//addActionListeners();
+		addActionListeners();
 	}
 
 	public void execute () {
@@ -62,7 +73,7 @@ public class Server {
 				//socket object to receive incoming client requests
 				serverEndpoint = serverSocket.accept();
 				String source = serverEndpoint.getRemoteSocketAddress().toString();
-				addToActivityLog(source, "", "Login");
+				addToActivityLog(source, "", "Client connected");
 
 				ClientHandler t = new ClientHandler(serverEndpoint, this);
 				clientHandlers.add(t);
@@ -80,36 +91,49 @@ public class Server {
 	// }
 
 	//broadcast message to users
-	public void broadcastString(String message, ClientHandler excludeUser) {
+	public void broadcastString(JSONObject obj, ClientHandler excludeUser) {
 		String source = excludeUser.serverEndpoint.getRemoteSocketAddress().toString();
 
-        for (ClientHandler client : clientHandlers) {
-            if (client != excludeUser) {
-				client.sendMessage(message);
-				String destination = client.serverEndpoint.getRemoteSocketAddress().toString();
-				addToActivityLog(source, destination, "Sending message");
-				addToActivityLog(source, destination, "Receiving message");
+		if (clientHandlers.size() == 1) {
+			addToActivityLog(source, "", "Message sending failed");
+		} 
+		else {
+			for (ClientHandler client : clientHandlers) {
+				if (client != excludeUser) {
+					client.sendMessage(obj);
+					String destination = client.serverEndpoint.getRemoteSocketAddress().toString();
+					addToActivityLog(source, destination, "Client sent a message");
+					addToActivityLog(source, destination, "Client received a message");
+				}
 			}
 		}
 	}
 	
-	public void broadcastFile(String filename, int fileSize, byte[] byteArray, ClientHandler excludeUser) {
+	public void broadcastFile(JSONObject obj, String filename, ClientHandler excludeUser) {
 		String source = excludeUser.serverEndpoint.getRemoteSocketAddress().toString();
-		
-		for (ClientHandler client : clientHandlers) {
-            if (client != excludeUser) {
-				client.sendFile(filename, fileSize, byteArray);
-				String destination = client.serverEndpoint.getRemoteSocketAddress().toString();
-				addToActivityLog(source, destination, "Sending file");
-				addToActivityLog(source, destination, "Receiving file");
-            }
-        }
+		int number = jsonList.size();
+		jsonList.add(obj);
+
+		if (clientHandlers.size() == 1) {
+			addToActivityLog(source, "", "File sending failed");
+			excludeUser.sendSenderButton(filename, number);
+		}
+		else {
+			for (ClientHandler client : clientHandlers) {
+				if (client != excludeUser) {
+					client.sendButton(filename, number);
+					String destination = client.serverEndpoint.getRemoteSocketAddress().toString();
+					addToActivityLog(source, destination, "Client sent a file");
+					addToActivityLog(source, destination, "Client received a file");
+				}
+			}
+		}
 	}
-	
+
 	public void removeClientHander(ClientHandler user) {
 		String source = user.serverEndpoint.getRemoteSocketAddress().toString();
 		clientHandlers.remove(user);
-		addToActivityLog(source, "", "Logout");
+		addToActivityLog(source, "", "Client disconnected");
 	}
 
 	public void addToActivityLog(String source, String destination, String activity) {
@@ -119,5 +143,44 @@ public class Server {
 
 		Object[] row = { timestamp, source , destination, activity };
 		model.addRow(row);
+	}
+
+	public void actionPerformed (ActionEvent ae) {
+		saveLogFile();
+	}
+
+	public void windowClosing(WindowEvent evt) {
+		int result = JOptionPane.showConfirmDialog(frame,"Do you want to save log as 'server_log.txt'?", "Closing DLSUsap",
+		JOptionPane.YES_NO_OPTION,
+		JOptionPane.QUESTION_MESSAGE);
+
+		if(result == JOptionPane.YES_OPTION){
+			saveLogFile();
+		}	
+	}
+
+	public void addActionListeners() {
+		saveBtn.addActionListener((ActionListener) this);
+		frame.addWindowListener(this);
+	}
+
+	public void saveLogFile() {
+		File logFile = new File("server_log.txt");
+
+		try {
+			PrintWriter os = new PrintWriter(logFile);
+			os.println("Server Log");
+	
+			for (int row = 0; row < table.getRowCount(); row++) {
+				os.println("");
+				os.println("Timestamp: " + table.getValueAt(row, 0));
+				os.println("Source: " + table.getValueAt(row, 1));
+				os.println("Destination: " + table.getValueAt(row, 2));
+				os.println("Activity: " + table.getValueAt(row, 3));
+			}
+			os.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

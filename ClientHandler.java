@@ -1,7 +1,16 @@
 import java.io.*; 
 import java.text.*; 
-import java.util.*; 
-import java.net.*; 
+import java.util.*;
+
+import javax.swing.JFrame;
+
+import java.net.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.nio.charset.StandardCharsets;
 
 public class ClientHandler extends Thread{
 	DataInputStream disReader;
@@ -26,59 +35,89 @@ public class ClientHandler extends Thread{
 		while (true) {
 			
 			try {
-				//broadcast message of handled client to other clients
-				
-				String messageType;
+				JSONObject obj = receiveJSONObject();
+				String type = obj.get("type").toString();
 
-				try {
-					messageType = disReader.readUTF();
-				} catch (Exception e) {
-					System.out.println("Server: Client " + this.serverEndpoint.getRemoteSocketAddress() + " sends exit...");
-					System.out.println("Closing this connection."); 
-					serverEndpoint.close();
-					System.out.println("Connection closed");
-					server.removeClientHander(this);
-					this.interrupt();
-					break;
+				if (type.equals("TEXT")) {
+					server.broadcastString(obj, this);
 				}
-
-				if (messageType.equals("STRING")) {
-					String clientMessage = disReader.readUTF();
-					server.broadcastString(clientMessage, this);
+				else if (type.equals("FILE")) {
+					String filename = obj.get("filename").toString();
+					server.broadcastFile(obj, filename, this);
 				}
-				else if (messageType.equals("FILE")) {
-					//server.broadcastString("file sent", null);
-					String filename = disReader.readUTF();
-					int fileSize = disReader.readInt();
-					byte[] byteArray = new byte[fileSize];
-					disReader.read(byteArray, 0, fileSize);
-					server.broadcastFile(filename, fileSize, byteArray, this);
-				} 
+				else if (type.equals("DOWNLOAD")) {
+					int number = Integer.parseInt(obj.get("number").toString());
+					sendFile(number);
+				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Server: Client " + this.serverEndpoint.getRemoteSocketAddress() + " sends exit...");
+				System.out.println("Closing this connection."); 
+				try {
+					serverEndpoint.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				System.out.println("Connection closed");
+				server.removeClientHander(this);
+				this.interrupt();
+				break;
 			}
 		}
 	}
 
 	//sends a message to the client
-	public void sendMessage (String message) {
+	public void sendMessage (JSONObject obj) {
 		try {
-			dosWriter.writeUTF("STRING");
-			dosWriter.writeUTF(message);
+			writeJSON(obj);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void sendFile (String filename, int fileSize, byte[] byteArray) {
+	public void sendButton (String filename, int number) {
 		try {
-			dosWriter.writeUTF("FILE");
-			dosWriter.writeUTF(filename);
-			dosWriter.writeInt(fileSize);
-			dosWriter.write(byteArray);
+			JSONObject obj = new JSONObject();
+			obj.put("type", "BUTTON");
+			obj.put("filename", filename);
+			obj.put("number", number);
+			writeJSON(obj);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void sendSenderButton (String filename, int number) {
+		try {
+			JSONObject obj = new JSONObject();
+			obj.put("type", "SENDER_BUTTON");
+			obj.put("filename", filename);
+			obj.put("number", number);
+			writeJSON(obj);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void sendFile(int number) {
+		try {
+			writeJSON(server.jsonList.get(number));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void writeJSON(JSONObject obj) throws IOException {
+		byte[] buffer = obj.toJSONString().getBytes(StandardCharsets.UTF_8);
+		dosWriter.writeInt(buffer.length);
+		dosWriter.write(buffer);
+	}
+
+	public JSONObject receiveJSONObject() throws IOException {
+		int nsize = disReader.readInt();
+		byte[] buffer = new byte[nsize];
+		disReader.readFully(buffer, 0, nsize);
+		String objString = new String(buffer, StandardCharsets. UTF_8);
+		return (JSONObject) JSONValue.parse(objString);
 	}
 }

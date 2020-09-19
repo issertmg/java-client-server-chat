@@ -4,10 +4,17 @@ import java.net.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Base64;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.nio.charset.StandardCharsets;
 
 public class Client extends WindowAdapter implements ActionListener {
 	ArrayList<byte[]> byteArrayList;
-	ArrayList<String> filenameList;
+	File file;
 	
 	Socket clientEndpoint;
 	DataInputStream disReader;
@@ -19,6 +26,7 @@ public class Client extends WindowAdapter implements ActionListener {
 	JTextArea messageTa;
 	JPanel centerPanel;
 	JScrollBar centerPanelScrollBar;
+	JButton leaveBtn;
 
 	public Client(String sServerAddress, int nPort) {
 		try
@@ -28,43 +36,50 @@ public class Client extends WindowAdapter implements ActionListener {
 			System.out.println("Client: Connected to server at " + clientEndpoint.getRemoteSocketAddress()); 
 
 			byteArrayList = new ArrayList<byte[]>();
-			filenameList = new ArrayList<String>();
             // obtaining input and out streams 
             disReader = new DataInputStream(clientEndpoint.getInputStream());
             dosWriter = new DataOutputStream(clientEndpoint.getOutputStream());
-			
+		} catch(Exception e){ 
+            e.printStackTrace(); 
+        } 
 			init();
             // the following loop performs the exchange of 
             // information between client and client handler 
             while (true)  
             { 
-				String messageType;
-
+		
 				try {
-					messageType = disReader.readUTF();
+					JSONObject obj = receiveJSONObject();
+					String type = obj.get("type").toString();
+
+					if (type.equals("TEXT")) {
+						String message = obj.get("content").toString();
+						displayReceivedMessage(message);
+					}
+					else if (type.equals("FILE")) {
+						FileOutputStream fos = new FileOutputStream(file);
+						byte[] buffer = decode(obj.get("content").toString());
+						fos.write(buffer);
+						fos.close();
+					}
+					else if (type.equals("BUTTON")) {
+						String filename = obj.get("filename").toString();
+						String numberStr = obj.get("number").toString();
+						displayReceivedFile(filename, numberStr);
+					}
+					else if (type.equals("SENDER_BUTTON")) {
+						String filename = obj.get("filename").toString();
+						String numberStr = obj.get("number").toString();
+						displaySentFile(filename, numberStr);
+					}
+
 				} catch (Exception e) {
 					break;
 				}
-				
-				if (messageType.equals("STRING")) {
-					String message = disReader.readUTF();
-					displayReceivedMessage(message);
-				}
-				else if (messageType.equals("FILE")) {
-					String filename = disReader.readUTF();
-					int fileSize = disReader.readInt();
-					byte[] byteArray = new byte[fileSize];
-					disReader.read(byteArray, 0, fileSize);
-					byteArrayList.add(byteArray);
-					filenameList.add(filename);
-					displayReceivedFile(filename);
-					System.out.println("filename: "+ filename);
-				}        
+			 
             } 
               
-        }catch(Exception e){ 
-            e.printStackTrace(); 
-        } 
+       
 	}
 
 	public void init () {
@@ -72,12 +87,24 @@ public class Client extends WindowAdapter implements ActionListener {
 		frame.setResizable(false);
 		sendBtn = new JButton("send");
 		sendBtn.setSize(150, 80);
+		sendBtn.setFocusable(false);
 		messageTa = new JTextArea(3, 1);
 		messageTa.setSize(250, 80);
 		messageTa.setLineWrap(true);
 		JScrollPane messageTaScroll = new JScrollPane(messageTa);
 		uploadBtn = new JButton("upload");
 		uploadBtn.setSize(150, 80);
+		uploadBtn.setFocusable(false);
+		leaveBtn = new JButton("disconnect");
+		leaveBtn.setSize(150, 80);
+
+		JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		northPanel.setBackground(new Color(165,179,197));
+		leaveBtn.setBackground(new Color(71,105,153));
+		leaveBtn.setForeground(Color.WHITE);
+		leaveBtn.setFocusable(false);
+		northPanel.add(leaveBtn);
+		frame.add(northPanel, BorderLayout.NORTH);
 		
 		JPanel southPanel = new JPanel(new BorderLayout());
 		southPanel.add(uploadBtn, BorderLayout.WEST);
@@ -105,6 +132,7 @@ public class Client extends WindowAdapter implements ActionListener {
 	public void addActionListeners() {
 		sendBtn.addActionListener((ActionListener) this);
 		uploadBtn.addActionListener((ActionListener) this);
+		leaveBtn.addActionListener((ActionListener) this);
 		frame.addWindowListener(this);
 	}
 
@@ -112,13 +140,18 @@ public class Client extends WindowAdapter implements ActionListener {
 		//JButton o = ((JButton) e.getSource());
 		if (ae.getActionCommand() == "send") {
 			try {
-				dosWriter.writeUTF("STRING");
-				dosWriter.writeUTF(messageTa.getText());
+				JSONObject obj = new JSONObject();
+				obj.put("type", "TEXT");
+				obj.put("content", messageTa.getText());
+				writeJSON(obj);
 				displaySentMessage(messageTa.getText());
+				messageTa.setText("");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			messageTa.setText("");
+		}
+		else if (ae.getActionCommand() == "disconnect") {
+			System.exit(0);
 		}
 		else if (ae.getActionCommand() == "upload") {
 			try {
@@ -126,44 +159,43 @@ public class Client extends WindowAdapter implements ActionListener {
 				int r = jfc.showSaveDialog(null);
 
 				if (r == JFileChooser.APPROVE_OPTION) {
-					File file = jfc.getSelectedFile();
-					byte[] byteArray = new byte [(int)file.length()];
-
-					FileInputStream fis = new FileInputStream(file);
+					File uploadFile = jfc.getSelectedFile();
+					FileInputStream fis = new FileInputStream(uploadFile);
+					byte[] byteArray = new byte [(int)uploadFile.length()];
 					fis.read(byteArray);
-					
-					int fileSize = Math.toIntExact(file.length());
-					String filename = file.getName();
-
-					byteArrayList.add(byteArray);
-					filenameList.add(filename);
-					displaySentFile(filename);
-
-					dosWriter.writeUTF("FILE");
-					dosWriter.writeUTF(filename);
-					dosWriter.writeInt(fileSize);
-					dosWriter.write(byteArray);
+					String dataString = encode(byteArray);
 					fis.close();
+
+					JSONObject obj = new JSONObject();
+					obj.put("type", "FILE");
+					obj.put("content", dataString);
+					obj.put("filename", uploadFile.getName());
+
+					writeJSON(obj);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		else {
-			int fileNumber = Integer.parseInt(ae.getActionCommand());
+			String[] actionCommand = ae.getActionCommand().split("\\?");
+			
+			int filenumber = Integer.parseInt(actionCommand[0]);
 			try {
 				JFileChooser jfc = new JFileChooser();
-				File newfile = new File(filenameList.get(fileNumber-1));
+				File newfile = new File(actionCommand[1]);
 				jfc.setSelectedFile(newfile);
 
 				int r = jfc.showSaveDialog(null);
 
 				if (r == JFileChooser.APPROVE_OPTION) {
-					File file = jfc.getSelectedFile();
+					file = jfc.getSelectedFile();
+
+					JSONObject obj = new JSONObject();
+					obj.put("type", "DOWNLOAD");
+					obj.put("number", filenumber);
 					
-					FileOutputStream fos = new FileOutputStream(file);
-					fos.write(byteArrayList.get(fileNumber-1));
-					fos.close();
+					writeJSON(obj);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -172,7 +204,7 @@ public class Client extends WindowAdapter implements ActionListener {
 
 	}
 
-	public void displaySentFile(String filename) {
+	public void displaySentFile(String filename, String numberStr) {
 		JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		//messagePanel.setPreferredSize(new Dimension (200, 1));
 		messagePanel.setOpaque(false);
@@ -183,7 +215,7 @@ public class Client extends WindowAdapter implements ActionListener {
 		//container.setPreferredSize(new Dimension(200, 1));
 		JLabel fileLabel = new JLabel(filename);
 		JButton downloadBtn = new JButton("download");
-		downloadBtn.setActionCommand(String.valueOf(byteArrayList.size()));
+		downloadBtn.setActionCommand(numberStr + "?" + filename);
 		downloadBtn.addActionListener((ActionListener) this);
 
 		container.add(fileLabel);
@@ -199,7 +231,7 @@ public class Client extends WindowAdapter implements ActionListener {
 		updateGUI();
 	}
 
-	public void displayReceivedFile(String filename) {
+	public void displayReceivedFile(String filename, String numberStr) {
 		JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		//messagePanel.setPreferredSize(new Dimension (200, 1));
 		messagePanel.setOpaque(false);
@@ -209,7 +241,7 @@ public class Client extends WindowAdapter implements ActionListener {
 		//container.setPreferredSize(new Dimension(200, 1));
 		JLabel fileLabel = new JLabel(filename);
 		JButton downloadBtn = new JButton("download");
-		downloadBtn.setActionCommand(String.valueOf(byteArrayList.size()));
+		downloadBtn.setActionCommand(numberStr + "?" + filename);
 		downloadBtn.addActionListener((ActionListener) this);
 
 		container.add(fileLabel);
@@ -286,6 +318,28 @@ public class Client extends WindowAdapter implements ActionListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public byte[] decode (String dataString) {
+		return Base64.getDecoder().decode(dataString);
+	}
+
+	public String encode (byte[] byteArray) {
+		return Base64.getEncoder().encodeToString(byteArray);
+	}
+
+	public void writeJSON(JSONObject obj) throws IOException {
+		byte[] buffer = obj.toJSONString().getBytes(StandardCharsets.UTF_8);
+		dosWriter.writeInt(buffer.length);
+		dosWriter.write(buffer);
+	}
+
+	public JSONObject receiveJSONObject() throws IOException {
+		int nsize = disReader.readInt();
+		byte[] buffer = new byte[nsize];
+		disReader.readFully(buffer, 0, nsize);
+		String objString = new String(buffer, StandardCharsets. UTF_8);
+		return (JSONObject) JSONValue.parse(objString);
 	}
 
 	// public static void main (String[] args) {
