@@ -44,6 +44,7 @@ public class Server extends WindowAdapter implements ActionListener {
 		scrollBar = scrollpane.getVerticalScrollBar();
 		frame.add(scrollpane, BorderLayout.CENTER);
 
+	
 		JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		northPanel.setBackground(new Color(71,105,153));
 		JLabel label = new JLabel("Test: dfdf");
@@ -84,11 +85,6 @@ public class Server extends WindowAdapter implements ActionListener {
 			}
 		}
 	}
-	// public static void main (String[] args) {
-	// 	int nPort = Integer.parseInt(args[0]);
-	// 	Server server = new Server(nPort);
-	// 	server.execute();
-	// }
 
 	//broadcast message to users
 	public void broadcastString(JSONObject obj, ClientHandler excludeUser) {
@@ -182,5 +178,11 @@ public class Server extends WindowAdapter implements ActionListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void main (String[] args) {
+		//int nPort = Integer.parseInt(args[0]);
+		Server server = new Server(6000);
+		server.execute();
 	}
 }
