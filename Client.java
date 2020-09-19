@@ -342,13 +342,34 @@ public class Client extends WindowAdapter implements ActionListener {
 		return (JSONObject) JSONValue.parse(objString);
 	}
 
-	// public static void main (String[] args) {
+	public static void main (String[] args) {
+		
+		JTextField serverAddressTF = new JTextField(5);
+		JTextField portTF = new JTextField(5);
+		
+		JPanel centerPanel = new JPanel(new GridLayout(2,2));
+		centerPanel.add(new JLabel("Server address: "));
+		centerPanel.add(serverAddressTF);
+		centerPanel.add(new JLabel("Port number: "));
+		centerPanel.add(portTF);
 
-	// 	String sServerAddress = args[0];
-	// 	int nPort = Integer.parseInt(args[1]);
-	// 	Client client = new Client (sServerAddress, nPort);
-	// 	// Client client = new Client()
-		
-		
-	// }
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(centerPanel, BorderLayout.CENTER);
+
+		do {
+			int result = JOptionPane.showConfirmDialog(null, panel, 
+			"Configure", JOptionPane.OK_CANCEL_OPTION);
+
+			if (result != JOptionPane.OK_OPTION) {
+				System.exit(0);
+			}
+
+		}
+		while (serverAddressTF.getText().isEmpty() || !portTF.getText().matches("[0-9]+"));
+
+		String sServerAddress = serverAddressTF.getText();
+		int nPort = Integer.parseInt(portTF.getText());
+	
+		Client client = new Client (sServerAddress, nPort);
+	}
 }
