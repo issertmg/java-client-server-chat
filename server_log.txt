@@ -1,0 +1,331 @@
+Server Log
+
+Timestamp: Sep-23-2020 19:45:39
+Source: /127.0.0.1:54486
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 19:45:53
+Source: /127.0.0.1:54486
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 19:46:00
+Source: /127.0.0.1:54486
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 19:46:10
+Source: /127.0.0.1:54487
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 19:46:14
+Source: /127.0.0.1:54487
+Destination: /127.0.0.1:54486
+Activity: Client sent a message
+
+Timestamp: Sep-23-2020 19:46:14
+Source: /127.0.0.1:54487
+Destination: /127.0.0.1:54486
+Activity: Client received a message
+
+Timestamp: Sep-23-2020 19:46:18
+Source: /127.0.0.1:54486
+Destination: /127.0.0.1:54487
+Activity: Client sent a message
+
+Timestamp: Sep-23-2020 19:46:18
+Source: /127.0.0.1:54486
+Destination: /127.0.0.1:54487
+Activity: Client received a message
+
+Timestamp: Sep-23-2020 19:46:22
+Source: /127.0.0.1:54486
+Destination: /127.0.0.1:54487
+Activity: Client sent a message
+
+Timestamp: Sep-23-2020 19:46:22
+Source: /127.0.0.1:54486
+Destination: /127.0.0.1:54487
+Activity: Client received a message
+
+Timestamp: Sep-23-2020 19:46:29
+Source: /127.0.0.1:54487
+Destination: /127.0.0.1:54486
+Activity: Client sent a message
+
+Timestamp: Sep-23-2020 19:46:29
+Source: /127.0.0.1:54487
+Destination: /127.0.0.1:54486
+Activity: Client received a message
+
+Timestamp: Sep-23-2020 19:46:34
+Source: /127.0.0.1:54487
+Destination: /127.0.0.1:54486
+Activity: Client sent a message
+
+Timestamp: Sep-23-2020 19:46:34
+Source: /127.0.0.1:54487
+Destination: /127.0.0.1:54486
+Activity: Client received a message
+
+Timestamp: Sep-23-2020 19:46:37
+Source: /127.0.0.1:54486
+Destination: /127.0.0.1:54487
+Activity: Client sent a message
+
+Timestamp: Sep-23-2020 19:46:37
+Source: /127.0.0.1:54486
+Destination: /127.0.0.1:54487
+Activity: Client received a message
+
+Timestamp: Sep-23-2020 19:46:39
+Source: /127.0.0.1:54486
+Destination: /127.0.0.1:54487
+Activity: Client sent a file
+
+Timestamp: Sep-23-2020 19:46:39
+Source: /127.0.0.1:54486
+Destination: /127.0.0.1:54487
+Activity: Client received a file
+
+Timestamp: Sep-23-2020 19:46:44
+Source: /127.0.0.1:54486
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 19:46:47
+Source: /127.0.0.1:54487
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 19:46:49
+Source: /127.0.0.1:54487
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 19:46:54
+Source: /127.0.0.1:54487
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 19:47:19
+Source: /127.0.0.1:54487
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 19:47:36
+Source: /127.0.0.1:54509
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 19:47:43
+Source: /127.0.0.1:54487
+Destination: /127.0.0.1:54509
+Activity: Client sent a file
+
+Timestamp: Sep-23-2020 19:47:43
+Source: /127.0.0.1:54487
+Destination: /127.0.0.1:54509
+Activity: Client received a file
+
+Timestamp: Sep-23-2020 19:48:04
+Source: /127.0.0.1:54509
+Destination: /127.0.0.1:54487
+Activity: Client sent a file
+
+Timestamp: Sep-23-2020 19:48:04
+Source: /127.0.0.1:54509
+Destination: /127.0.0.1:54487
+Activity: Client received a file
+
+Timestamp: Sep-23-2020 19:48:27
+Source: /127.0.0.1:54487
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 19:48:28
+Source: /127.0.0.1:54509
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 19:48:45
+Source: /127.0.0.1:54526
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 19:48:48
+Source: /127.0.0.1:54526
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 19:48:51
+Source: /127.0.0.1:54526
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 19:48:53
+Source: /127.0.0.1:54526
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 19:49:54
+Source: /127.0.0.1:54526
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 19:50:11
+Source: /127.0.0.1:54535
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 19:50:14
+Source: /127.0.0.1:54535
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 19:50:17
+Source: /127.0.0.1:54535
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 20:01:26
+Source: /127.0.0.1:54567
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 20:01:34
+Source: /127.0.0.1:54567
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 20:01:38
+Source: /127.0.0.1:54567
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:01:41
+Source: /127.0.0.1:54567
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 20:02:15
+Source: /127.0.0.1:54573
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 20:02:22
+Source: /127.0.0.1:54573
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 20:02:39
+Source: /127.0.0.1:54573
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:02:42
+Source: /127.0.0.1:54573
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:03:02
+Source: /127.0.0.1:54573
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:03:07
+Source: /127.0.0.1:54573
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:03:23
+Source: /127.0.0.1:54573
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 20:04:15
+Source: /127.0.0.1:54581
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 20:04:23
+Source: /127.0.0.1:54581
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 20:04:33
+Source: /127.0.0.1:54581
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 20:05:01
+Source: /127.0.0.1:54586
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 20:05:09
+Source: /127.0.0.1:54586
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 20:05:18
+Source: /127.0.0.1:54586
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:05:27
+Source: /127.0.0.1:54586
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 20:06:22
+Source: /127.0.0.1:54593
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 20:06:31
+Source: /127.0.0.1:54593
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 20:06:34
+Source: /127.0.0.1:54593
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:06:37
+Source: /127.0.0.1:54593
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:07:48
+Source: /127.0.0.1:54593
+Destination: 
+Activity: Client disconnected
+
+Timestamp: Sep-23-2020 20:07:57
+Source: /127.0.0.1:54601
+Destination: 
+Activity: Client connected
+
+Timestamp: Sep-23-2020 20:08:00
+Source: /127.0.0.1:54601
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:08:06
+Source: /127.0.0.1:54601
+Destination: 
+Activity: File sending failed
+
+Timestamp: Sep-23-2020 20:08:11
+Source: /127.0.0.1:54601
+Destination: 
+Activity: Message sending failed
+
+Timestamp: Sep-23-2020 20:08:14
+Source: /127.0.0.1:54601
+Destination: 
+Activity: Client disconnected

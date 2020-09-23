@@ -50,7 +50,7 @@ public class ClientHandler extends Thread{
 					sendFile(number);
 				}
 
-			} catch (IOException e) {
+			} catch (Exception e) {
 				System.out.println("Server: Client " + this.serverEndpoint.getRemoteSocketAddress() + " sends exit...");
 				System.out.println("Closing this connection."); 
 				try {
@@ -87,12 +87,16 @@ public class ClientHandler extends Thread{
 		}
 	}
 
-	public void sendSenderButton (String filename, int number) {
+	public void sendSenderButton (String filename, int number, Boolean isSuccessful) {
 		try {
 			JSONObject obj = new JSONObject();
 			obj.put("type", "SENDER_BUTTON");
 			obj.put("filename", filename);
 			obj.put("number", number);
+			if (isSuccessful)
+				obj.put("delivery_status", "SUCCESS");
+			else
+				obj.put("delivery_status", "FAILED");
 			writeJSON(obj);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -119,5 +123,19 @@ public class ClientHandler extends Thread{
 		disReader.readFully(buffer, 0, nsize);
 		String objString = new String(buffer, StandardCharsets. UTF_8);
 		return (JSONObject) JSONValue.parse(objString);
+	}
+
+	public void sendMessageStatus (JSONObject obj, boolean isSuccessful) {
+		try {
+			obj.remove("type");
+			obj.put("type", "MESSAGE_STATUS");
+			if (isSuccessful)
+				obj.put("delivery_status", "SUCCESS");
+			else
+				obj.put("delivery_status", "FAILED");
+			writeJSON(obj);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

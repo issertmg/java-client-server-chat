@@ -19,16 +19,26 @@ public class Server extends WindowAdapter implements ActionListener {
 	JFrame frame;
 	DefaultTableModel model;
 	ArrayList<JSONObject> jsonList;
+	ServerSocket serverSocket;
 
 
 	public Server(int nPort) {
 		this.nPort = nPort;
 		clientHandlers = new HashSet<>();
 		jsonList = new ArrayList<JSONObject>();
-		init();	
+
+		try {
+			serverSocket = new ServerSocket(nPort);
+
+			initGUI();
+			handleClients();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void init () {
+	public void initGUI () {
 		frame = new JFrame("De La Salle Usap (DLSU) Server");
 		frame.setResizable(false);
 		saveBtn = new JButton("save log");
@@ -58,14 +68,7 @@ public class Server extends WindowAdapter implements ActionListener {
 		addActionListeners();
 	}
 
-	public void execute () {
-		ServerSocket serverSocket = null;
-		try {
-			serverSocket = new ServerSocket(nPort);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	public void handleClients () {
 		while (true) {
 			Socket serverEndpoint = null;
 			try {
@@ -92,6 +95,7 @@ public class Server extends WindowAdapter implements ActionListener {
 
 		if (clientHandlers.size() == 1) {
 			addToActivityLog(source, "", "Message sending failed");
+			excludeUser.sendMessageStatus(obj, false);
 		} 
 		else {
 			for (ClientHandler client : clientHandlers) {
@@ -102,6 +106,7 @@ public class Server extends WindowAdapter implements ActionListener {
 					addToActivityLog(source, destination, "Client received a message");
 				}
 			}
+			excludeUser.sendMessageStatus(obj, true);
 		}
 	}
 	
@@ -112,7 +117,7 @@ public class Server extends WindowAdapter implements ActionListener {
 
 		if (clientHandlers.size() == 1) {
 			addToActivityLog(source, "", "File sending failed");
-			excludeUser.sendSenderButton(filename, number);
+			excludeUser.sendSenderButton(filename, number, false);
 		}
 		else {
 			for (ClientHandler client : clientHandlers) {
@@ -123,6 +128,7 @@ public class Server extends WindowAdapter implements ActionListener {
 					addToActivityLog(source, destination, "Client received a file");
 				}
 			}
+			excludeUser.sendSenderButton(filename, number, true);
 		}
 	}
 
@@ -183,6 +189,5 @@ public class Server extends WindowAdapter implements ActionListener {
 	public static void main (String[] args) {
 		//int nPort = Integer.parseInt(args[0]);
 		Server server = new Server(6000);
-		server.execute();
 	}
 }
