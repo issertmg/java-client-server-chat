@@ -70,7 +70,10 @@ public class Client extends WindowAdapter implements ActionListener {
 					String numberStr = obj.get("number").toString();
 					String deliveryStatus = obj.get("delivery_status").toString();
 					Boolean isSuccessful = deliveryStatus.equals("SUCCESS");
-					displaySentFile(filename, numberStr, isSuccessful);
+					if (isSuccessful)
+						displaySentFile(filename, numberStr);
+					else
+						displaySentMessage("Failed to send file '" + filename +"'", false);
 				}
 				else if (type.equals("MESSAGE_STATUS")) {
 					String message = obj.get("content").toString();
@@ -201,7 +204,7 @@ public class Client extends WindowAdapter implements ActionListener {
 
 	}
 
-	public void displaySentFile(String filename, String numberStr, Boolean isSuccessful) {
+	public void displaySentFile(String filename, String numberStr) {
 		JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		messagePanel.setOpaque(false);
 		JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -212,13 +215,6 @@ public class Client extends WindowAdapter implements ActionListener {
 		downloadBtn.addActionListener((ActionListener) this);
 		container.add(fileLabel);
 		container.add(downloadBtn);
-
-		if (isSuccessful == false) {
-			container.setBackground(new Color(168,168,168));
-			container.remove(downloadBtn);
-			container.add(new JLabel(new ImageIcon("error.png")));
-			updateGUI();
-		}
 
 		messagePanel.add(container);
 		centerPanel.add(messagePanel);
@@ -267,7 +263,7 @@ public class Client extends WindowAdapter implements ActionListener {
 
 		if (isSuccessful == false) {
 			container.setBackground(new Color(168,168,168));
-			messagePanel.add(new JLabel(new ImageIcon("error.png")));
+			messagePanel.add(new JLabel(new ImageIcon(getClass().getClassLoader().getResource("error.png"))));
 			updateGUI();
 		}
 			
@@ -345,6 +341,7 @@ public class Client extends WindowAdapter implements ActionListener {
 	public static void main (String[] args) {
 		
 		JTextField serverAddressTF = new JTextField(5);
+		serverAddressTF.setText("localhost");
 		JTextField portTF = new JTextField(5);
 		
 		JPanel centerPanel = new JPanel(new GridLayout(2,2));

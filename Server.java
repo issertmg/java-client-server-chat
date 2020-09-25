@@ -57,7 +57,7 @@ public class Server extends WindowAdapter implements ActionListener {
 	
 		JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		northPanel.setBackground(new Color(71,105,153));
-		JLabel label = new JLabel("Test: dfdf");
+		JLabel label = new JLabel("Port: " + nPort);
 		label.setForeground(Color.WHITE);
 		northPanel.add(label);
 		frame.add(northPanel, BorderLayout.NORTH);
@@ -187,7 +187,6 @@ public class Server extends WindowAdapter implements ActionListener {
 	}
 
 	public static void main (String[] args) {
-		//int nPort = Integer.parseInt(args[0]);
 		Server server = new Server(6000);
 	}
 }
