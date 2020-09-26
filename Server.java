@@ -20,6 +20,7 @@ public class Server extends WindowAdapter implements ActionListener {
 	DefaultTableModel model;
 	ArrayList<JSONObject> jsonList;
 	ServerSocket serverSocket;
+	String serverIP;
 
 
 	public Server(int nPort) {
@@ -29,7 +30,7 @@ public class Server extends WindowAdapter implements ActionListener {
 
 		try {
 			serverSocket = new ServerSocket(nPort);
-
+			serverIP = InetAddress.getLocalHost().getHostAddress();
 			initGUI();
 			handleClients();
 
@@ -57,7 +58,7 @@ public class Server extends WindowAdapter implements ActionListener {
 	
 		JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		northPanel.setBackground(new Color(71,105,153));
-		JLabel label = new JLabel("Port: " + nPort);
+		JLabel label = new JLabel("IP Address: " + serverIP + "          Port: " + nPort);
 		label.setForeground(Color.WHITE);
 		northPanel.add(label);
 		frame.add(northPanel, BorderLayout.NORTH);

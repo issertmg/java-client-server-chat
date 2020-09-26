@@ -354,11 +354,14 @@ public class Client extends WindowAdapter implements ActionListener {
 	}
 
 	public static void main (String[] args) {
-		
 		JTextField serverAddressTF = new JTextField(5);
-		serverAddressTF.setText("localhost");
 		JTextField portTF = new JTextField(5);
-		
+		try {
+			serverAddressTF.setText(InetAddress.getLocalHost().getHostAddress());
+		} catch(Exception e) { 
+			e.printStackTrace();
+		}
+
 		JPanel centerPanel = new JPanel(new GridLayout(2,2));
 		centerPanel.add(new JLabel("Server address: "));
 		centerPanel.add(serverAddressTF);
