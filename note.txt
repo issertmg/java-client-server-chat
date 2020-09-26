@@ -1,0 +1,1 @@
+jar cvfm Client.jar manifest.txt *.class org\json\simple\*.class org\json\simple\parser\*.class error.png

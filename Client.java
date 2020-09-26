@@ -141,11 +141,13 @@ public class Client extends WindowAdapter implements ActionListener {
 	public void actionPerformed (ActionEvent ae) {
 		if (ae.getActionCommand() == "send") {
 			try {
-				JSONObject obj = new JSONObject();
-				obj.put("type", "TEXT");
-				obj.put("content", messageTa.getText());
-				writeJSON(obj);
-				messageTa.setText("");
+				if (!messageTa.getText().trim().isEmpty()) {
+					JSONObject obj = new JSONObject();
+					obj.put("type", "TEXT");
+					obj.put("content", messageTa.getText());
+					writeJSON(obj);
+					messageTa.setText("");
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -265,6 +267,7 @@ public class Client extends WindowAdapter implements ActionListener {
 			container.setBackground(new Color(168,168,168));
 			messagePanel.add(new JLabel(new ImageIcon(getClass().getClassLoader().getResource("error.png"))));
 			updateGUI();
+			showDialog();
 		}
 			
 		messagePanel.add(container);
@@ -336,6 +339,18 @@ public class Client extends WindowAdapter implements ActionListener {
 		disReader.readFully(buffer, 0, nsize);
 		String objString = new String(buffer, StandardCharsets. UTF_8);
 		return (JSONObject) JSONValue.parse(objString);
+	}
+
+	public void showDialog () {
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				JOptionPane.showMessageDialog(frame,
+					"The other client is disconnected.",
+					"Message cannot be sent",
+					JOptionPane.WARNING_MESSAGE);
+			}
+		});
+		t.start();
 	}
 
 	public static void main (String[] args) {
